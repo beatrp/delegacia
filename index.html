@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Denúncia Anônima - Portal de Inteligência e Segurança Pública</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome icons -->
+    
+    <!-- FontAwesome icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter / Jakarta -->
+    
+    <!-- Google Fonts Inter / Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -39,16 +43,15 @@
         }
     </script>
     <style>
-        /* Estilos e Variáveis de Tema (Dark Red vs Light Mode) */
         :root {
             --bg-main: #140507;
-            --bg-card: rgba(35, 10, 13, 0.9);
+            --bg-card: rgba(35, 10, 13, 0.92);
             --bg-card-hover: rgba(61, 16, 22, 0.9);
-            --border-card: rgba(133, 29, 40, 0.4);
+            --border-card: rgba(133, 29, 40, 0.45);
             --text-primary: #fef2f2;
             --text-secondary: #fca5a5;
             --text-muted: #991b1b;
-            --header-bg: rgba(20, 5, 7, 0.92);
+            --header-bg: rgba(20, 5, 7, 0.94);
             --input-bg: #230a0d;
             --input-border: #5c1720;
             --input-text: #ffffff;
@@ -63,7 +66,7 @@
             --text-primary: #1f2937;
             --text-secondary: #4b5563;
             --text-muted: #6b7280;
-            --header-bg: rgba(255, 255, 255, 0.95);
+            --header-bg: rgba(255, 255, 255, 0.96);
             --input-bg: #fff5f5;
             --input-border: #fda4af;
             --input-text: #111827;
@@ -120,12 +123,27 @@
         .light-mode .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #fca5a5;
         }
+
+        /* Toast Animation */
+        @keyframes toastIn {
+            from { transform: translateY(100%) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { transform: translateY(0) scale(1); opacity: 1; }
+            to { transform: translateY(100%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter {
+            animation: toastIn 0.3s ease forwards;
+        }
+        .toast-exit {
+            animation: toastOut 0.3s ease forwards;
+        }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased selection:bg-red-600 selection:text-white">
+<body class="h-full flex flex-col font-sans antialiased selection:bg-red-600 selection:text-white relative">
 
-    <!-- HEADER / BARRA SUPERIOR COLORIDA COM TROCA DE TEMA -->
-    <header class="sticky top-0 z-50 backdrop-blur-md border-b shadow-lg transition-colors duration-300" style="background-color: var(--header-bg); border-color: var(--border-card);">
+    <header class="sticky top-0 z-40 backdrop-blur-md border-b shadow-lg transition-colors duration-300" style="background-color: var(--header-bg); border-color: var(--border-card);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 
@@ -149,7 +167,7 @@
                 <div class="flex items-center gap-3">
                     
                     <!-- BOTÃO ALTERNADOR DE TEMA (DARK RED / LIGHT MODE) -->
-                    <button onclick="toggleTheme()" id="btn-theme-toggle" title="Alternar Tema" class="w-10 h-10 rounded-xl dynamic-card flex items-center justify-center hover:scale-105 transition-all text-amber-400">
+                    <button onclick="toggleTheme()" id="btn-theme-toggle" title="Alternar Tema" class="w-10 h-10 rounded-xl dynamic-card flex items-center justify-center hover:scale-105 transition-all text-amber-400 focus:outline-none">
                         <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
                     </button>
 
@@ -164,7 +182,7 @@
                                 class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-red-400 flex items-center space-x-2">
                             <i class="fa-solid fa-building-user text-amber-400"></i>
                             <span class="hidden sm:inline">Painel Policial</span>
-                            <span class="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border border-amber-500/30">ADMIN</span>
+                            <span id="badge-admin-count" class="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border border-amber-500/30">0</span>
                         </button>
                     </div>
 
@@ -180,7 +198,7 @@
         <!-- ================= VISÃO DO DENUNCIANTE ================= -->
         <section id="view-denunciante" class="space-y-6">
             
-            <!-- BANNER DE BOAS-VINDAS EM DARK RED / BURGUNDY -->
+            <!-- BANNER DE BOAS-VINDAS -->
             <div class="gradient-banner rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden border border-red-500/30">
                 <div class="absolute -right-8 -bottom-8 opacity-15 text-white pointer-events-none">
                     <i class="fa-solid fa-shield-halved text-[220px]"></i>
@@ -191,13 +209,13 @@
                     </div>
                     <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Sua identidade está 100% preservada.</h1>
                     <p class="text-red-100 text-sm sm:text-base leading-relaxed opacity-90">
-                        Nenhum registro de IP ou dados pessoais são mantidos pelo sistema **Denúncia Anônima**. Colabore com as forças de segurança pública enviando informações de crimes e ocorrências de forma totalmente sigilosa.
+                        Nenhum registro de IP ou dados pessoais são salvos pelo sistema. Sua colaboração é criptografada e enviada diretamente para a central de inteligência da delegacia.
                     </p>
                 </div>
             </div>
 
             <!-- NAVEGAÇÃO DE ABAS (REGISTRAR vs CONSULTAR) -->
-            <div class="flex dynamic-card p-1.5 rounded-2xl max-w-md mx-auto">
+            <div class="flex dynamic-card p-1.5 rounded-2xl max-w-md mx-auto shadow-lg">
                 <button id="tab-registrar" onclick="switchDenuncianteTab('registrar')" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-md flex items-center justify-center gap-2">
                     <i class="fa-solid fa-plus-circle text-lg"></i> Nova Denúncia
                 </button>
@@ -216,7 +234,7 @@
                         <div class="w-10 h-10 rounded-full bg-red-600 text-white font-bold flex items-center justify-center shadow-lg shadow-red-600/40 ring-4 ring-red-900/30 transition-all">
                             1
                         </div>
-                        <span class="text-xs font-bold">Tipo & Urgência</span>
+                        <span class="text-xs font-bold text-red-500">Tipo & Urgência</span>
                     </div>
 
                     <!-- Step 2 Badge -->
@@ -278,7 +296,7 @@
                         </div>
 
                         <div class="flex justify-end pt-4">
-                            <button type="button" onclick="goToStep(2)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
+                            <button type="button" onclick="validateAndGoStep(2)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
                                 Avançar <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
@@ -321,7 +339,7 @@
                             <button type="button" onclick="goToStep(1)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3.5 rounded-2xl transition-all flex items-center gap-2">
                                 <i class="fa-solid fa-arrow-left"></i> Voltar
                             </button>
-                            <button type="button" onclick="goToStep(3)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
+                            <button type="button" onclick="validateAndGoStep(3)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
                                 Avançar <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
@@ -331,7 +349,7 @@
                     <div id="step-content-3" class="hidden space-y-6">
                         <h3 class="text-lg font-bold flex items-center gap-2 border-b border-red-900/40 pb-3">
                             <span class="w-7 h-7 bg-red-900/50 text-red-400 rounded-lg flex items-center justify-center text-xs font-bold border border-red-700/50">3</span>
-                            Anexar Evidências (Opcional) & Concluir
+                            Anexar Evidências (Opcional) & Enviar
                         </h3>
 
                         <div>
@@ -344,22 +362,22 @@
                                     <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
                                 </div>
                                 <p class="text-sm font-bold">Clique para selecionar arquivos de evidência</p>
-                                <p class="text-xs opacity-60 mt-1">Metadados de fotos (EXIF e geolocalização) são removidos automaticamente por segurança.</p>
+                                <p class="text-xs opacity-60 mt-1">Metadados de fotos são removidos automaticamente por segurança.</p>
                             </div>
                             <div id="file-previews" class="flex flex-wrap gap-3 mt-4"></div>
                         </div>
 
                         <div class="bg-emerald-950/40 border border-emerald-500/30 p-4 rounded-2xl text-emerald-300 text-xs flex items-center gap-3">
-                            <i class="fa-solid fa-shield-check text-emerald-400 text-xl"></i>
-                            <span>Sua denúncia será encriptada e enviada de forma 100% anônima aos órgãos competentes.</span>
+                            <i class="fa-solid fa-shield-check text-emerald-400 text-xl flex-shrink-0"></i>
+                            <span>Sua denúncia será encriptada e gravada com segurança no sistema. Nenhum dado pessoal é rastreado.</span>
                         </div>
 
                         <div class="flex justify-between pt-4">
                             <button type="button" onclick="goToStep(2)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3.5 rounded-2xl transition-all flex items-center gap-2">
                                 <i class="fa-solid fa-arrow-left"></i> Voltar
                             </button>
-                            <button type="submit" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:opacity-95 text-slate-950 font-extrabold px-9 py-4 rounded-2xl shadow-glow-emerald transition-all flex items-center gap-3">
-                                <i class="fa-solid fa-paper-plane text-lg"></i> Transmitir Denúncia Anônima
+                            <button type="submit" id="btn-submit-denuncia" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:opacity-95 text-slate-950 font-extrabold px-9 py-4 rounded-2xl shadow-glow-emerald transition-all flex items-center gap-3">
+                                <i class="fa-solid fa-paper-plane text-lg"></i> Enviar Denúncia Anônima
                             </button>
                         </div>
                     </div>
@@ -367,15 +385,15 @@
                 </form>
             </div>
 
-            <!-- MODAL DE PROTOCOLO GERADO (SUCESSO SOBERBO) -->
+            <!-- MODAL DE PROTOCOLO GERADO (SUCESSO) -->
             <div id="modal-protocolo-sucesso" class="hidden dynamic-card rounded-3xl shadow-2xl border-2 border-emerald-500/50 p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-6">
                 <div class="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 rounded-3xl flex items-center justify-center mx-auto shadow-glow-emerald animate-bounce">
                     <i class="fa-solid fa-check text-4xl"></i>
                 </div>
                 <div>
-                    <span class="bg-emerald-500/20 text-emerald-400 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">Registrado com Sucesso</span>
-                    <h2 class="text-3xl font-extrabold mt-2">Denúncia Enviada à Inteligência!</h2>
-                    <p class="opacity-70 text-sm mt-2">Salve o código de protocolo e a chave de acompanhamento. Eles são seus únicos meios de acompanhar a investigação.</p>
+                    <span class="bg-emerald-500/20 text-emerald-400 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">Registrado no Sistema</span>
+                    <h2 class="text-3xl font-extrabold mt-2">Denúncia Salva com Sucesso!</h2>
+                    <p class="opacity-70 text-sm mt-2">Guarde o código de protocolo e a chave de segurança. Eles são necessários para você acompanhar o progresso da investigação.</p>
                 </div>
 
                 <!-- CARDS DE CÓDIGO E CHAVE COM COPIA FÁCIL -->
@@ -389,7 +407,7 @@
                     </div>
 
                     <div class="bg-slate-950 p-5 rounded-2xl border border-amber-900/50 relative overflow-hidden">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Chave de Segurança</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Chave Secreta de Acesso</span>
                         <span id="display-chave" class="text-xl font-mono font-extrabold text-white block mt-1">---</span>
                         <button onclick="copyToClipboard('display-chave')" class="mt-3 w-full bg-amber-500/30 hover:bg-amber-500 text-amber-300 hover:text-white font-bold text-xs py-2 rounded-xl transition-colors flex items-center justify-center gap-2 border border-amber-500/30">
                             <i class="fa-regular fa-copy"></i> Copiar Chave
@@ -399,7 +417,7 @@
 
                 <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl text-amber-400 text-xs text-left flex gap-3">
                     <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg flex-shrink-0 mt-0.5"></i>
-                    <span><strong>AVISO IMPORTANTE:</strong> Como o sistema é estritamente anônimo, não guardamos seus dados para recuperação. Guarde os dados acima em um local seguro.</span>
+                    <span><strong>AVISO IMPORTANTE:</strong> Como o sistema é estritamente anônimo, esses dados ficam apenas com você. Guarde-os em local seguro para consultar o andamento.</span>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -419,7 +437,7 @@
                         <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
                     </div>
                     <h2 class="text-2xl font-extrabold">Acompanhar Progresso da Investigação</h2>
-                    <p class="text-sm opacity-70">Insira o código de protocolo e a chave recebidos para consultar o histórico.</p>
+                    <p class="text-sm opacity-70">Insira o código de protocolo e a chave de segurança gerados no momento da denúncia.</p>
                 </div>
 
                 <form onsubmit="handleConsultaSubmit(event)" class="space-y-4 pt-2">
@@ -434,7 +452,7 @@
                         </div>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-red-700/40 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-search"></i> Consultar Status Atual
+                        <i class="fa-solid fa-search"></i> Consultar Status no Banco
                     </button>
                 </form>
 
@@ -454,11 +472,14 @@
                         <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
                         <h2 class="text-xl font-extrabold">Central de Inteligência & Triagem Policial</h2>
                     </div>
-                    <p class="text-xs opacity-70 mt-1">Gerenciamento de denúncias anônimas em tempo real para a Delegacia Regional.</p>
+                    <p class="text-xs opacity-70 mt-1">Gerenciamento de denúncias anônimas gravadas em tempo real no banco de dados local.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="renderAdminTable()" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 border border-red-800/50">
-                        <i class="fa-solid fa-rotate-right"></i> Atualizar Dados
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="renderAdminTable(); showToast('Dados sincronizados!', 'info');" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 border border-red-800/50">
+                        <i class="fa-solid fa-rotate-right"></i> Sincronizar
+                    </button>
+                    <button onclick="confirmResetDatabase()" class="bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all border border-amber-700/40" title="Restaurar dados padrões de demonstração">
+                        <i class="fa-solid fa-database text-xs"></i> Resetar Mock
                     </button>
                 </div>
             </div>
@@ -469,7 +490,7 @@
                 <!-- TOTAL DENÚNCIAS -->
                 <div class="bg-gradient-to-br from-red-950 to-wine-900 border border-red-700/40 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
                     <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-red-400">Total de Registros</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-400">Total no Banco</span>
                         <h3 id="stat-total" class="text-3xl font-extrabold text-white mt-1">0</h3>
                     </div>
                     <div class="w-14 h-14 bg-red-600/20 text-red-400 rounded-2xl flex items-center justify-center border border-red-500/30">
@@ -480,7 +501,7 @@
                 <!-- EM ANÁLISE / PENDENTES -->
                 <div class="bg-gradient-to-br from-amber-950 to-wine-900 border border-amber-500/30 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
                     <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Em Análise / Novas</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Pendente / Análise</span>
                         <h3 id="stat-pendentes" class="text-3xl font-extrabold text-white mt-1">0</h3>
                     </div>
                     <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center border border-amber-500/30">
@@ -502,7 +523,7 @@
                 <!-- CONCLUÍDAS -->
                 <div class="bg-gradient-to-br from-emerald-950 to-wine-900 border border-emerald-500/30 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
                     <div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Solucionadas</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Concluídas</span>
                         <h3 id="stat-concluidas" class="text-3xl font-extrabold text-white mt-1">0</h3>
                     </div>
                     <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center border border-emerald-500/30">
@@ -521,7 +542,7 @@
                     <!-- Busca por palavra-chave -->
                     <div class="relative flex-1 max-w-md">
                         <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="admin-search" oninput="renderAdminTable()" placeholder="Buscar por código, rua, categoria..." class="w-full dynamic-input rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600">
+                        <input type="text" id="admin-search" oninput="renderAdminTable()" placeholder="Buscar protocolo, rua, tipo de crime..." class="w-full dynamic-input rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600">
                     </div>
 
                     <!-- Dropdowns de Filtro -->
@@ -599,7 +620,7 @@
                         <p id="modal-detalhe-data" class="text-sm font-bold mt-0.5">---</p>
                     </div>
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Gravidade</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Urgência</span>
                         <div id="modal-detalhe-urgencia" class="mt-0.5">---</div>
                     </div>
                 </div>
@@ -608,7 +629,7 @@
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider opacity-70">Local Registrado</span>
                     <p id="modal-detalhe-local" class="text-sm font-semibold mt-1 dynamic-card p-3.5 rounded-xl flex items-center gap-2">
-                        <i class="fa-solid fa-location-dot text-red-500 text-base"></i> <span>---</span>
+                        <i class="fa-solid fa-location-dot text-red-500 text-base flex-shrink-0"></i> <span>---</span>
                     </p>
                 </div>
 
@@ -631,7 +652,7 @@
                 <!-- FORMULÁRIO DE DESPACHO E ATUALIZAÇÃO -->
                 <div class="bg-gradient-to-br from-red-950/40 to-wine-900/40 p-6 rounded-2xl border border-red-900/40 space-y-4">
                     <h4 class="text-sm font-extrabold flex items-center gap-2 text-red-400">
-                        <i class="fa-solid fa-pen-nib text-red-500"></i> Atualizar Tratativa Policial
+                        <i class="fa-solid fa-pen-nib text-red-500"></i> Despacho / Atualização da Investigação
                     </h4>
 
                     <div>
@@ -645,18 +666,18 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold mb-1 opacity-80">Parecer / Despacho Oficial (Visível ao Denunciante)</label>
-                        <textarea id="modal-nova-obs" rows="3" placeholder="Insira o andamento, ações tomadas pela equipe de inteligência ou o desfecho da investigação..." class="w-full dynamic-input rounded-xl p-3.5 text-sm focus:ring-2 focus:ring-red-600 font-medium"></textarea>
+                        <label class="block text-xs font-bold mb-1 opacity-80">Parecer Oficial / Observação da Equipe (Visível no rastreamento)</label>
+                        <textarea id="modal-nova-obs" rows="3" placeholder="Insira as ações tomadas pela delegacia, andamento das diligências ou desfecho..." class="w-full dynamic-input rounded-xl p-3.5 text-sm focus:ring-2 focus:ring-red-600 font-medium"></textarea>
                     </div>
 
                     <button onclick="salvarAtualizacaoAdmin()" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white text-xs font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> Salvar & Registrar Parecer
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar & Atualizar no Banco
                     </button>
                 </div>
 
                 <!-- HISTÓRICO DE ALTERAÇÕES -->
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 block">Histórico do Protocolo</span>
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 block">Histórico de Alterações</span>
                     <div id="modal-historico-list" class="space-y-2 text-xs"></div>
                 </div>
 
@@ -664,14 +685,21 @@
         </div>
     </div>
 
+    <!-- CONTAINER DE NOTIFICAÇÕES TOAST -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4"></div>
+
     <!-- LÓGICA E SCRIPT PRINCIPAL DO SISTEMA -->
     <script>
+        // CHAVE PRINCIPAL DO LOCALSTORAGE SOLICITADA
+        const DB_KEY = 'denuncia_anonima_db';
+        const THEME_KEY = 'denuncia_anonima_theme';
+
         let denuncias = [];
         let arquivosUploadTemp = [];
         let denunciaAtualModalId = null;
 
-        // MOCK DATA INICIAL COLORIDO E DIVERSIRCADO
-        const mockDenuncias = [
+        // DADOS DE DEMONSTRAÇÃO PADRÃO
+        const mockDenunciasInicial = [
             {
                 id: "DEN-2026-1049",
                 chave: "KEY-92810",
@@ -685,8 +713,8 @@
                 ],
                 status: "Em Investigação",
                 historico: [
-                    { data: "12/09/2026 22:35", status: "Em Análise", obs: "Denúncia registrada com sucesso e enviada à inteligência." },
-                    { data: "13/09/2026 09:15", status: "Em Investigação", obs: "Equipe velada designada para verificação no local." }
+                    { data: "12/09/2026 22:35", status: "Em Análise", obs: "Denúncia registrada no sistema e encaminhada para triagem." },
+                    { data: "13/09/2026 09:15", status: "Em Investigação", obs: "Equipe de investigação velada destacada para monitoramento no local." }
                 ]
             },
             {
@@ -696,12 +724,12 @@
                 urgencia: "Média",
                 dataHora: "2026-09-10T14:00",
                 local: "Estacionamento do Supermercado Silva - Av. Brasil",
-                descricao: "Indivíduo vestindo casaco escuro forçando maçanetas de veículos estacionados.",
+                descricao: "Indivíduo vestindo casaco escuro forçando maçanetas de veículos estacionados na área externa.",
                 evidencias: [],
                 status: "Concluída",
                 historico: [
-                    { data: "10/09/2026 14:20", status: "Em Análise", obs: "Registro de ocorrência processado." },
-                    { data: "11/09/2026 11:00", status: "Concluída", obs: "Patrulha ostensiva abordou e identificou o suspeito no perímetro." }
+                    { data: "10/09/2026 14:20", status: "Em Análise", obs: "Ocorrência repassada para a viatura do setor." },
+                    { data: "11/09/2026 11:00", status: "Concluída", obs: "Suspeito abordado no perímetro e conduzido para averiguação." }
                 ]
             },
             {
@@ -711,40 +739,75 @@
                 urgencia: "Crítica",
                 dataHora: "2026-09-14T08:00",
                 local: "Rua B, Bloco C, Apto 202 - Condomínio Esperança",
-                descricao: "Gritos constantes de pedido de socorro e barulho de objetos sendo quebrados.",
+                descricao: "Gritos de pedido de socorro e ruídos frequentes de objetos sendo quebrados.",
                 evidencias: [],
                 status: "Em Análise",
                 historico: [
-                    { data: "14/09/2026 08:05", status: "Em Análise", obs: "Denúncia de urgência máxima recebida. Viatura em deslocamento." }
+                    { data: "14/09/2026 08:05", status: "Em Análise", obs: "Denúncia registrada com prioridade de urgência crítica." }
                 ]
             }
         ];
 
+        // INICIALIZAÇÃO DO SISTEMA
         window.onload = function() {
-            const savedData = localStorage.getItem('denuncia_anonima_dados_v3');
-            if (savedData) {
-                try {
-                    denuncias = JSON.parse(savedData);
-                } catch(e) {
-                    denuncias = mockDenuncias;
-                }
-            } else {
-                denuncias = mockDenuncias;
-                salvarStorage();
-            }
+            carregarDadosDoStorage();
 
-            // Aplicar Tema Salvo
-            const savedTheme = localStorage.getItem('denuncia_anonima_theme');
-            if(savedTheme === 'light') {
+            // Carregar Tema Salvo
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme === 'light') {
                 document.documentElement.classList.remove('dark-red-theme');
                 document.documentElement.classList.add('light-mode');
                 document.getElementById('theme-icon').className = 'fa-solid fa-sun text-lg text-amber-500';
             }
 
+            // Definir data/hora atual por padrão no formulário
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('denuncia-data').value = now.toISOString().slice(0, 16);
+
             atualizarEstatisticasAdmin();
             renderAdminTable();
         };
 
+        // CARREGAR DADOS DO LOCALSTORAGE DE FORMA SEGURA
+        function carregarDadosDoStorage() {
+            const raw = localStorage.getItem(DB_KEY);
+            if (raw) {
+                try {
+                    denuncias = JSON.parse(raw);
+                } catch (e) {
+                    console.error("Erro ao ler localStorage, redefinindo mock:", e);
+                    denuncias = [...mockDenunciasInicial];
+                    salvarNoStorage();
+                }
+            } else {
+                denuncias = [...mockDenunciasInicial];
+                salvarNoStorage();
+            }
+        }
+
+        // SALVAR DADOS NO LOCALSTORAGE
+        function salvarNoStorage() {
+            try {
+                localStorage.setItem(DB_KEY, JSON.stringify(denuncias));
+            } catch (e) {
+                console.error("Erro ao salvar no localStorage:", e);
+                showToast("Erro ao gravar dados localmente", "error");
+            }
+        }
+
+        // RESETAR BANCO PARA O MOCK INICIAL (ÚTIL PARA TESTES)
+        function confirmResetDatabase() {
+            if (confirm("Deseja restaurar as denúncias de teste originais? Quaisquer denúncias locais serão redefinidas.")) {
+                denuncias = [...mockDenunciasInicial];
+                salvarNoStorage();
+                atualizarEstatisticasAdmin();
+                renderAdminTable();
+                showToast("Banco restaurado com sucesso!", "success");
+            }
+        }
+
+        // ALTERNADOR DE TEMA LIGHT / DARK RED
         function toggleTheme() {
             const htmlElem = document.documentElement;
             const iconElem = document.getElementById('theme-icon');
@@ -753,19 +816,18 @@
                 htmlElem.classList.remove('light-mode');
                 htmlElem.classList.add('dark-red-theme');
                 iconElem.className = 'fa-solid fa-moon text-lg text-amber-400';
-                localStorage.setItem('denuncia_anonima_theme', 'dark-red');
+                localStorage.setItem(THEME_KEY, 'dark-red');
+                showToast("Tema Dark Red ativado", "info");
             } else {
                 htmlElem.classList.remove('dark-red-theme');
                 htmlElem.classList.add('light-mode');
                 iconElem.className = 'fa-solid fa-sun text-lg text-amber-500';
-                localStorage.setItem('denuncia_anonima_theme', 'light');
+                localStorage.setItem(THEME_KEY, 'light');
+                showToast("Tema Claro ativado", "info");
             }
         }
 
-        function salvarStorage() {
-            localStorage.setItem('denuncia_anonima_dados_v3', JSON.stringify(denuncias));
-        }
-
+        // ALTERNÂNCIA DE TELAS PRINCIPAIS (DENUNCIANTE / ADMIN)
         function switchView(view) {
             const btnDenunciante = document.getElementById('nav-denunciante');
             const btnAdmin = document.getElementById('nav-admin');
@@ -790,6 +852,7 @@
             }
         }
 
+        // ALTERNÂNCIA DE ABAS NO PERFIL DO DENUNCIANTE
         function switchDenuncianteTab(tab) {
             const btnReg = document.getElementById('tab-registrar');
             const btnCon = document.getElementById('tab-consultar');
@@ -814,6 +877,39 @@
             }
         }
 
+        // CONTROLADOR DE PASSOS DO STEPPER COM VALIDAÇÃO
+        function validateAndGoStep(targetStep) {
+            if (targetStep === 2) {
+                const cat = document.getElementById('denuncia-categoria').value;
+                if (!cat) {
+                    showToast("Por favor, selecione a Categoria do crime.", "warning");
+                    document.getElementById('denuncia-categoria').focus();
+                    return;
+                }
+            } else if (targetStep === 3) {
+                const local = document.getElementById('denuncia-local').value.trim();
+                const desc = document.getElementById('denuncia-descricao').value.trim();
+                const data = document.getElementById('denuncia-data').value;
+
+                if (!data) {
+                    showToast("Informe a Data e Hora da ocorrência.", "warning");
+                    document.getElementById('denuncia-data').focus();
+                    return;
+                }
+                if (!local) {
+                    showToast("Preencha o Endereço/Localização.", "warning");
+                    document.getElementById('denuncia-local').focus();
+                    return;
+                }
+                if (!desc) {
+                    showToast("Descreva o fato com detalhes.", "warning");
+                    document.getElementById('denuncia-descricao').focus();
+                    return;
+                }
+            }
+            goToStep(targetStep);
+        }
+
         function goToStep(stepNumber) {
             document.getElementById('step-content-1').classList.add('hidden');
             document.getElementById('step-content-2').classList.add('hidden');
@@ -821,12 +917,13 @@
 
             document.getElementById(`step-content-${stepNumber}`).classList.remove('hidden');
 
-            for(let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const b = document.getElementById(`step-badge-${i}`).querySelector('div');
                 const t = document.getElementById(`step-badge-${i}`).querySelector('span');
 
                 if (i === stepNumber) {
                     b.className = "w-10 h-10 rounded-full bg-red-600 text-white font-bold flex items-center justify-center shadow-lg shadow-red-600/40 ring-4 ring-red-900/40 transition-all";
+                    b.innerHTML = i;
                     t.className = "text-xs font-bold text-red-500";
                 } else if (i < stepNumber) {
                     b.className = "w-10 h-10 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center shadow-md transition-all";
@@ -840,11 +937,14 @@
             }
         }
 
+        // CARREGAMENTO DE ARQUIVOS / ANEXOS COM CONVERSÃO EM BASE64
         function handleFileSelect(event) {
             const files = event.target.files;
             const previewContainer = document.getElementById('file-previews');
             previewContainer.innerHTML = '';
             arquivosUploadTemp = [];
+
+            if (files.length === 0) return;
 
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -852,23 +952,39 @@
                     arquivosUploadTemp.push(e.target.result);
 
                     const div = document.createElement('div');
-                    div.className = "relative w-20 h-20 rounded-2xl overflow-hidden border border-red-900/40 dynamic-card shadow-sm";
+                    div.className = "relative w-20 h-20 rounded-2xl overflow-hidden border border-red-900/40 dynamic-card shadow-sm flex items-center justify-center";
                     
-                    if(file.type.startsWith('image/')) {
+                    if (file.type.startsWith('image/')) {
                         div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
                     } else {
-                        div.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center font-bold text-xs"><i class="fa-solid fa-file-pdf text-xl text-red-500"></i><span class="text-[9px] mt-1">PDF</span></div>`;
+                        div.innerHTML = `<div class="flex flex-col items-center justify-center font-bold text-xs"><i class="fa-solid fa-file-pdf text-xl text-red-500"></i><span class="text-[9px] mt-1">PDF</span></div>`;
                     }
 
                     previewContainer.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
+
+            showToast(`${files.length} arquivo(s) selecionado(s)`, "info");
         }
 
+        // SUBMISSÃO DA DENÚNCIA E GRAVAÇÃO NO LOCALSTORAGE
         function handleDenunciaSubmit(e) {
             e.preventDefault();
 
+            // Garantir leitura dos dados mais atualizados do formulário
+            const categoria = document.getElementById('denuncia-categoria').value;
+            const urgencia = document.getElementById('denuncia-urgencia').value;
+            const dataHora = document.getElementById('denuncia-data').value;
+            const local = document.getElementById('denuncia-local').value.trim();
+            const descricao = document.getElementById('denuncia-descricao').value.trim();
+
+            if (!categoria || !local || !descricao) {
+                showToast("Preencha todos os campos obrigatórios!", "warning");
+                return;
+            }
+
+            // GERAR PROTOCOLO ÚNICO E CHAVE DE SEGURANÇA
             const randomNum = Math.floor(1000 + Math.random() * 9000);
             const ano = new Date().getFullYear();
             const protocolo = `DEN-${ano}-${randomNum}`;
@@ -877,41 +993,56 @@
             const novaDenuncia = {
                 id: protocolo,
                 chave: chave,
-                categoria: document.getElementById('denuncia-categoria').value,
-                urgencia: document.getElementById('denuncia-urgencia').value,
-                dataHora: document.getElementById('denuncia-data').value,
-                local: document.getElementById('denuncia-local').value,
-                descricao: document.getElementById('denuncia-descricao').value,
+                categoria: categoria,
+                urgencia: urgencia,
+                dataHora: dataHora,
+                local: local,
+                descricao: descricao,
                 evidencias: [...arquivosUploadTemp],
                 status: "Em Análise",
                 historico: [
                     {
                         data: new Date().toLocaleString('pt-BR'),
                         status: "Em Análise",
-                        obs: "Denúncia anônima cadastrada no sistema de triagem."
+                        obs: "Denúncia anônima registrada e encriptada com sucesso."
                     }
                 ]
             };
 
+            // Recarregar antes de salvar para evitar sobrescrever se outra aba alterou
+            carregarDadosDoStorage();
             denuncias.unshift(novaDenuncia);
-            salvarStorage();
+            salvarNoStorage();
 
+            // EXIBIR O MODAL DE SUCESSO E PROTOCOLO
             document.getElementById('denunciante-form-container').classList.add('hidden');
             document.getElementById('modal-protocolo-sucesso').classList.remove('hidden');
 
             document.getElementById('display-protocolo').innerText = protocolo;
             document.getElementById('display-chave').innerText = chave;
 
+            // REINICIALIZAR O FORMULÁRIO
             document.getElementById('form-denuncia').reset();
             document.getElementById('file-previews').innerHTML = '';
             arquivosUploadTemp = [];
             goToStep(1);
+
+            // Atualizar contadores no topo e tabela do admin
+            atualizarEstatisticasAdmin();
+            renderAdminTable();
+
+            showToast("Denúncia transmitida e salva com sucesso!", "success");
         }
 
+        // RESETAR TELA PARA NOVA DENÚNCIA
         function prepararNovaDenuncia() {
             switchDenuncianteTab('registrar');
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('denuncia-data').value = now.toISOString().slice(0, 16);
         }
 
+        // PREENCHER DADOS DE CONSULTA DIRETA
         function irParaConsultaDirecta() {
             const proto = document.getElementById('display-protocolo').innerText;
             const chave = document.getElementById('display-chave').innerText;
@@ -919,29 +1050,40 @@
             switchDenuncianteTab('consultar');
             document.getElementById('consulta-protocolo').value = proto;
             document.getElementById('consulta-chave').value = chave;
+            
+            // Disparar a busca automaticamente
+            handleConsultaSubmit(new Event('submit'));
         }
 
+        // FUNÇÃO DE CÓPIA DE TEXTO PARA A ÁREA DE TRANSFERÊNCIA
         function copyToClipboard(elementId) {
             const text = document.getElementById(elementId).innerText;
+            if (!text || text === '---') return;
+
+            // Suporte para iFrames e navegadores restritos
             const tempInput = document.createElement('input');
             tempInput.value = text;
             document.body.appendChild(tempInput);
             tempInput.select();
-            document.execCommand('copy');
+            
+            try {
+                document.execCommand('copy');
+                showToast(`Copiado: ${text}`, "success");
+            } catch (err) {
+                showToast("Não foi possível copiar automaticamente", "error");
+            }
             document.body.removeChild(tempInput);
-
-            const elem = document.getElementById(elementId);
-            const originalText = elem.innerText;
-            elem.innerText = "COPIADO!";
-            setTimeout(() => {
-                elem.innerText = originalText;
-            }, 1200);
         }
 
+        // CONSULTAR PROTOCOLO NO LOCALSTORAGE
         function handleConsultaSubmit(e) {
-            e.preventDefault();
+            if (e) e.preventDefault();
+            
             const proto = document.getElementById('consulta-protocolo').value.trim().toUpperCase();
             const chave = document.getElementById('consulta-chave').value.trim().toUpperCase();
+
+            // Garante buscar a versão mais recente salva
+            carregarDadosDoStorage();
 
             const encontrada = denuncias.find(d => d.id === proto && d.chave === chave);
             const resContainer = document.getElementById('consulta-resultado');
@@ -949,27 +1091,36 @@
             if (!encontrada) {
                 resContainer.classList.remove('hidden');
                 resContainer.innerHTML = `
-                    <div class="bg-red-950/60 border border-red-500/40 text-red-300 p-5 rounded-2xl text-sm flex items-center gap-3">
-                        <i class="fa-solid fa-triangle-exclamation text-xl text-red-500"></i>
-                        <span>Protocolo ou Chave incorretos. Verifique os dados fornecidos e tente novamente.</span>
+                    <div class="bg-red-950/60 border border-red-500/40 text-red-300 p-5 rounded-2xl text-sm flex items-center gap-3 shadow-lg">
+                        <i class="fa-solid fa-triangle-exclamation text-xl text-red-500 flex-shrink-0"></i>
+                        <span>Nenhuma denúncia encontrada para este Protocolo e Chave. Verifique os dados digitados e tente novamente.</span>
                     </div>
                 `;
+                showToast("Protocolo ou Chave não conferem", "error");
                 return;
             }
 
             resContainer.classList.remove('hidden');
             resContainer.innerHTML = `
-                <div class="dynamic-card rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="dynamic-card rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
                     <div class="flex flex-wrap justify-between items-start gap-4 pb-4 border-b border-red-900/30">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Identificador</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Código Registrado</span>
                             <h3 class="text-xl font-extrabold font-mono text-red-400">${encontrada.id}</h3>
-                            <p class="text-xs font-semibold mt-0.5">${encontrada.categoria} • ${getUrgenciaBadgeHTML(encontrada.urgencia)}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs font-bold">${encontrada.categoria}</span>
+                                ${getUrgenciaBadgeHTML(encontrada.urgencia)}
+                            </div>
                         </div>
                         <div class="text-right">
-                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Status Atual</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60 block">Status da Investigação</span>
                             <div class="mt-1">${getStatusBadgeHTML(encontrada.status)}</div>
                         </div>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider opacity-70 block mb-1">Local do Fato</span>
+                        <p class="text-xs font-medium opacity-90 dynamic-card p-3 rounded-xl">${encontrada.local}</p>
                     </div>
 
                     <div>
@@ -981,7 +1132,7 @@
                                 <div class="relative">
                                     <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-red-600 to-amber-500 ring-4 ring-red-950"></div>
                                     <div class="text-[10px] opacity-60 font-bold uppercase tracking-wider mb-0.5">${h.data}</div>
-                                    <div class="text-xs font-extrabold mb-1">${h.status}</div>
+                                    <div class="text-xs font-extrabold mb-1 text-amber-400">${h.status}</div>
                                     <p class="text-xs dynamic-card p-3.5 rounded-2xl shadow-sm leading-relaxed">${h.obs}</p>
                                 </div>
                             `).join('')}
@@ -989,25 +1140,33 @@
                     </div>
                 </div>
             `;
+
+            showToast("Dados recuperados do banco com sucesso!", "success");
         }
 
+        // ATUALIZAR CONTADORES DO PAINEL ADMIN
         function atualizarEstatisticasAdmin() {
+            carregarDadosDoStorage();
             document.getElementById('stat-total').innerText = denuncias.length;
             document.getElementById('stat-pendentes').innerText = denuncias.filter(d => d.status === 'Em Análise').length;
             document.getElementById('stat-investigacao').innerText = denuncias.filter(d => d.status === 'Em Investigação').length;
             document.getElementById('stat-concluidas').innerText = denuncias.filter(d => d.status === 'Concluída').length;
+            document.getElementById('badge-admin-count').innerText = denuncias.length;
         }
 
+        // RENDERIZAR TABELA POLICIAL
         function renderAdminTable() {
+            carregarDadosDoStorage();
             const tbody = document.getElementById('admin-table-body');
-            const search = document.getElementById('admin-search').value.toLowerCase();
+            const search = document.getElementById('admin-search').value.toLowerCase().trim();
             const filterStatus = document.getElementById('filter-status').value;
             const filterUrgencia = document.getElementById('filter-urgencia').value;
 
             let filtradas = denuncias.filter(d => {
                 const matchSearch = d.id.toLowerCase().includes(search) || 
                                     d.local.toLowerCase().includes(search) || 
-                                    d.categoria.toLowerCase().includes(search);
+                                    d.categoria.toLowerCase().includes(search) ||
+                                    d.descricao.toLowerCase().includes(search);
                 const matchStatus = filterStatus === 'todos' || d.status === filterStatus;
                 const matchUrg = filterUrgencia === 'todos' || d.urgencia === filterUrgencia;
 
@@ -1019,7 +1178,7 @@
                     <tr>
                         <td colspan="6" class="text-center py-12 opacity-60 text-sm font-semibold">
                             <i class="fa-solid fa-folder-open text-4xl mb-3 block opacity-40"></i>
-                            Nenhuma ocorrência encontrada com os filtros selecionados.
+                            Nenhuma denúncia encontrada para os parâmetros informados.
                         </td>
                     </tr>
                 `;
@@ -1032,7 +1191,7 @@
                         ${d.id}
                         <span class="block text-[11px] font-sans font-medium opacity-60 mt-0.5">${formatarData(d.dataHora)}</span>
                     </td>
-                    <td class="py-4 px-6 font-bold">${d.categoria}</td>
+                    <td class="py-4 px-6 font-bold text-xs">${d.categoria}</td>
                     <td class="py-4 px-6 text-xs opacity-80 font-medium max-w-xs truncate" title="${d.local}">${d.local}</td>
                     <td class="py-4 px-6">${getUrgenciaBadgeHTML(d.urgencia)}</td>
                     <td class="py-4 px-6">${getStatusBadgeHTML(d.status)}</td>
@@ -1045,9 +1204,11 @@
             `).join('');
         }
 
+        // ABRIR MODAL DE DETALHES POLICIAIS
         function abrirModalAdmin(id) {
+            carregarDadosDoStorage();
             const denuncia = denuncias.find(d => d.id === id);
-            if(!denuncia) return;
+            if (!denuncia) return;
 
             denunciaAtualModalId = id;
 
@@ -1064,12 +1225,12 @@
                     <a href="${ev}" target="_blank" class="block w-24 h-24 rounded-2xl overflow-hidden border border-red-900/40 relative group">
                         <img src="${ev}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/100x100/3d1016/fca5a5?text=Anexo'">
                         <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                            Abrir
+                            Visualizar
                         </div>
                     </a>
                 `).join('');
             } else {
-                containerEvidencias.innerHTML = `<span class="text-xs opacity-50 italic">Sem evidências anexadas.</span>`;
+                containerEvidencias.innerHTML = `<span class="text-xs opacity-50 italic">Nenhum anexo enviado com esta denúncia.</span>`;
             }
 
             document.getElementById('modal-novo-status').value = denuncia.status;
@@ -1084,14 +1245,17 @@
             denunciaAtualModalId = null;
         }
 
+        // SALVAR ATUALIZAÇÃO DO STATUS / DESPACHO NO LOCALSTORAGE
         function salvarAtualizacaoAdmin() {
-            if(!denunciaAtualModalId) return;
+            if (!denunciaAtualModalId) return;
 
+            carregarDadosDoStorage();
             const denuncia = denuncias.find(d => d.id === denunciaAtualModalId);
-            if(!denuncia) return;
+            if (!denuncia) return;
 
             const novoStatus = document.getElementById('modal-novo-status').value;
-            const novaObs = document.getElementById('modal-nova-obs').value.trim() || `Status atualizado para ${novoStatus}`;
+            const novaObsInput = document.getElementById('modal-nova-obs').value.trim();
+            const novaObs = novaObsInput || `Status alterado para [${novoStatus}] pela equipe de investigação.`;
 
             denuncia.status = novoStatus;
             denuncia.historico.unshift({
@@ -1100,12 +1264,13 @@
                 obs: novaObs
             });
 
-            salvarStorage();
+            salvarNoStorage();
             atualizarEstatisticasAdmin();
             renderAdminTable();
             renderModalHistorico(denuncia);
 
             document.getElementById('modal-nova-obs').value = '';
+            showToast("Despacho policial salvo com sucesso!", "success");
         }
 
         function renderModalHistorico(denuncia) {
@@ -1113,7 +1278,7 @@
             list.innerHTML = denuncia.historico.map(h => `
                 <div class="dynamic-card p-3 rounded-xl">
                     <div class="flex justify-between font-bold">
-                        <span>${h.status}</span>
+                        <span class="text-amber-400">${h.status}</span>
                         <span class="text-[10px] opacity-60">${h.data}</span>
                     </div>
                     <p class="opacity-80 mt-1 font-medium">${h.obs}</p>
@@ -1121,8 +1286,9 @@
             `).join('');
         }
 
+        // BADGES DE STATUS COM CORES
         function getStatusBadgeHTML(status) {
-            switch(status) {
+            switch (status) {
                 case 'Em Análise':
                     return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center gap-1.5"><i class="fa-solid fa-hourglass-half text-[10px]"></i> Em Análise</span>`;
                 case 'Em Investigação':
@@ -1136,8 +1302,9 @@
             }
         }
 
+        // BADGES DE URGÊNCIA
         function getUrgenciaBadgeHTML(urgencia) {
-            switch(urgencia) {
+            switch (urgencia) {
                 case 'Crítica':
                     return `<span class="gradient-badge-critico text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Crítica</span>`;
                 case 'Alta':
@@ -1147,18 +1314,54 @@
                 case 'Baixa':
                     return `<span class="gradient-badge-baixa text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Baixa</span>`;
                 default:
-                    return urgencia;
+                    return `<span class="bg-slate-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">${urgencia}</span>`;
             }
         }
 
+        // FORMATADOR DE DATA FORMATO PT-BR
         function formatarData(dataIso) {
-            if(!dataIso) return 'N/A';
+            if (!dataIso) return 'N/A';
             try {
                 const d = new Date(dataIso);
-                return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-2-digit', minute:'2-2-digit'});
-            } catch(e) {
+                if (isNaN(d.getTime())) return dataIso;
+                return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-2-digit', minute: '2-2-digit' });
+            } catch (e) {
                 return dataIso;
             }
+        }
+
+        // NOTIFICAÇÕES VISUAIS ESTILO TOAST
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let icon = 'fa-info-circle';
+            let bgClass = 'bg-slate-900 border-red-700 text-white';
+
+            if (type === 'success') {
+                icon = 'fa-circle-check';
+                bgClass = 'bg-emerald-950 border-emerald-500 text-emerald-200';
+            } else if (type === 'error') {
+                icon = 'fa-circle-xmark';
+                bgClass = 'bg-red-950 border-red-500 text-red-200';
+            } else if (type === 'warning') {
+                icon = 'fa-triangle-exclamation';
+                bgClass = 'bg-amber-950 border-amber-500 text-amber-200';
+            }
+
+            toast.className = `pointer-events-auto border p-4 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-bold ${bgClass} toast-enter`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} text-lg"></i>
+                <span class="flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
     </script>
 </body>
