@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Web de Denúncias Anônimas</title>
+    <title>Denúncia Anônima - Portal de Inteligência e Segurança Pública</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome icons -->
@@ -133,15 +133,15 @@
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('denunciante')">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-glow-red flex items-center justify-center">
                         <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                            <i class="fa-solid fa-shield-cat text-2xl text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-400"></i>
+                            <i class="fa-solid fa-user-secret text-2xl text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-400"></i>
                         </div>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-extrabold tracking-tight">SEG<span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">PUB</span></span>
+                            <span class="text-xl font-extrabold tracking-tight">DENÚNCIA<span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400"> ANÔNIMA</span></span>
                             <span class="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">100% SIGILOSO</span>
                         </div>
-                        <span class="text-xs opacity-70 block font-medium">Portal Integrado de Inteligência Policial</span>
+                        <span class="text-xs opacity-70 block font-medium">Sistema Web de Proteção ao Cidadão</span>
                     </div>
                 </div>
 
@@ -183,15 +183,15 @@
             <!-- BANNER DE BOAS-VINDAS EM DARK RED / BURGUNDY -->
             <div class="gradient-banner rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden border border-red-500/30">
                 <div class="absolute -right-8 -bottom-8 opacity-15 text-white pointer-events-none">
-                    <i class="fa-solid fa-user-secret text-[220px]"></i>
+                    <i class="fa-solid fa-shield-halved text-[220px]"></i>
                 </div>
                 <div class="relative z-10 max-w-3xl space-y-3">
                     <div class="inline-flex items-center gap-2 bg-slate-950/40 backdrop-blur-md text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-400/30 shadow-inner">
-                        <i class="fa-solid fa-lock text-emerald-400"></i> Proteção de Anonimato Ativa
+                        <i class="fa-solid fa-lock text-emerald-400"></i> Portal Denúncia Anônima
                     </div>
                     <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Sua identidade está 100% preservada.</h1>
                     <p class="text-red-100 text-sm sm:text-base leading-relaxed opacity-90">
-                        Nenhum registro de IP ou dados pessoais são mantidos. Colabore com as forças de segurança pública enviando informações de crimes e ocorrências de forma totalmente sigilosa.
+                        Nenhum registro de IP ou dados pessoais são mantidos pelo sistema **Denúncia Anônima**. Colabore com as forças de segurança pública enviando informações de crimes e ocorrências de forma totalmente sigilosa.
                     </p>
                 </div>
             </div>
@@ -721,7 +721,7 @@
         ];
 
         window.onload = function() {
-            const savedData = localStorage.getItem('segpub_denuncias_v2');
+            const savedData = localStorage.getItem('denuncia_anonima_dados_v3');
             if (savedData) {
                 try {
                     denuncias = JSON.parse(savedData);
@@ -734,7 +734,7 @@
             }
 
             // Aplicar Tema Salvo
-            const savedTheme = localStorage.getItem('segpub_theme');
+            const savedTheme = localStorage.getItem('denuncia_anonima_theme');
             if(savedTheme === 'light') {
                 document.documentElement.classList.remove('dark-red-theme');
                 document.documentElement.classList.add('light-mode');
@@ -753,17 +753,17 @@
                 htmlElem.classList.remove('light-mode');
                 htmlElem.classList.add('dark-red-theme');
                 iconElem.className = 'fa-solid fa-moon text-lg text-amber-400';
-                localStorage.setItem('segpub_theme', 'dark-red');
+                localStorage.setItem('denuncia_anonima_theme', 'dark-red');
             } else {
                 htmlElem.classList.remove('dark-red-theme');
                 htmlElem.classList.add('light-mode');
                 iconElem.className = 'fa-solid fa-sun text-lg text-amber-500';
-                localStorage.setItem('segpub_theme', 'light');
+                localStorage.setItem('denuncia_anonima_theme', 'light');
             }
         }
 
         function salvarStorage() {
-            localStorage.setItem('segpub_denuncias_v2', JSON.stringify(denuncias));
+            localStorage.setItem('denuncia_anonima_dados_v3', JSON.stringify(denuncias));
         }
 
         function switchView(view) {
