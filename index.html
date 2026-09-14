@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full dark-red-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SegPub - Sistema Web de Denúncias Anônimas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter / Jakarta -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        wine: {
+                            950: '#140507',
+                            900: '#230a0d',
+                            800: '#3d1016',
+                            700: '#5c1720',
+                            600: '#851d28',
+                            500: '#b91c1c',
+                            400: '#ef4444',
+                        }
+                    },
+                    boxShadow: {
+                        'glow-red': '0 0 25px -5px rgba(220, 38, 38, 0.4)',
+                        'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.4)',
+                        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos e Variáveis de Tema (Dark Red vs Light Mode) */
+        :root {
+            --bg-main: #140507;
+            --bg-card: rgba(35, 10, 13, 0.9);
+            --bg-card-hover: rgba(61, 16, 22, 0.9);
+            --border-card: rgba(133, 29, 40, 0.4);
+            --text-primary: #fef2f2;
+            --text-secondary: #fca5a5;
+            --text-muted: #991b1b;
+            --header-bg: rgba(20, 5, 7, 0.92);
+            --input-bg: #230a0d;
+            --input-border: #5c1720;
+            --input-text: #ffffff;
+            --banner-gradient: linear-gradient(135deg, #450a0a 0%, #7f1d1d 50%, #991b1b 100%);
+        }
+
+        .light-mode {
+            --bg-main: #fcf8f8;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fff1f2;
+            --border-card: #fecdd3;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --input-bg: #fff5f5;
+            --input-border: #fda4af;
+            --input-text: #111827;
+            --banner-gradient: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #b91c1c 100%);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dynamic-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            backdrop-filter: blur(12px);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .dynamic-input {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--input-text) !important;
+        }
+
+        .gradient-banner {
+            background: var(--banner-gradient);
+        }
+
+        .gradient-badge-critico {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        .gradient-badge-alta {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        }
+        .gradient-badge-media {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        }
+        .gradient-badge-baixa {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #851d28;
+            border-radius: 4px;
+        }
+        .light-mode .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #fca5a5;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased selection:bg-red-600 selection:text-white">
+
+    <!-- HEADER / BARRA SUPERIOR COLORIDA COM TROCA DE TEMA -->
+    <header class="sticky top-0 z-50 backdrop-blur-md border-b shadow-lg transition-colors duration-300" style="background-color: var(--header-bg); border-color: var(--border-card);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- LOGO DARK RED COM DEGRADÊ VIBRANTE -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('denunciante')">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 p-0.5 shadow-glow-red flex items-center justify-center">
+                        <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid fa-shield-cat text-2xl text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl font-extrabold tracking-tight">SEG<span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">PUB</span></span>
+                            <span class="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">100% SIGILOSO</span>
+                        </div>
+                        <span class="text-xs opacity-70 block font-medium">Portal Integrado de Inteligência Policial</span>
+                    </div>
+                </div>
+
+                <!-- SELEÇÃO DE PERFIL + SELETOR DE TEMA -->
+                <div class="flex items-center gap-3">
+                    
+                    <!-- BOTÃO ALTERNADOR DE TEMA (DARK RED / LIGHT MODE) -->
+                    <button onclick="toggleTheme()" id="btn-theme-toggle" title="Alternar Tema" class="w-10 h-10 rounded-xl dynamic-card flex items-center justify-center hover:scale-105 transition-all text-amber-400">
+                        <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+
+                    <!-- CHAVE SELETORA DE PERFIL (DENUNCIANTE vs ADMIN) -->
+                    <div class="flex items-center dynamic-card p-1.5 rounded-2xl shadow-inner">
+                        <button id="nav-denunciante" onclick="switchView('denunciante')" 
+                                class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-lg shadow-red-700/40">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span class="hidden sm:inline">Denunciante</span>
+                        </button>
+                        <button id="nav-admin" onclick="switchView('admin')" 
+                                class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-red-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-building-user text-amber-400"></i>
+                            <span class="hidden sm:inline">Painel Policial</span>
+                            <span class="bg-amber-500/20 text-amber-400 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border border-amber-500/30">ADMIN</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- ================= VISÃO DO DENUNCIANTE ================= -->
+        <section id="view-denunciante" class="space-y-6">
+            
+            <!-- BANNER DE BOAS-VINDAS EM DARK RED / BURGUNDY -->
+            <div class="gradient-banner rounded-3xl p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden border border-red-500/30">
+                <div class="absolute -right-8 -bottom-8 opacity-15 text-white pointer-events-none">
+                    <i class="fa-solid fa-user-secret text-[220px]"></i>
+                </div>
+                <div class="relative z-10 max-w-3xl space-y-3">
+                    <div class="inline-flex items-center gap-2 bg-slate-950/40 backdrop-blur-md text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-400/30 shadow-inner">
+                        <i class="fa-solid fa-lock text-emerald-400"></i> Proteção de Anonimato Ativa
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">Sua identidade está 100% preservada.</h1>
+                    <p class="text-red-100 text-sm sm:text-base leading-relaxed opacity-90">
+                        Nenhum registro de IP ou dados pessoais são mantidos. Colabore com as forças de segurança pública enviando informações de crimes e ocorrências de forma totalmente sigilosa.
+                    </p>
+                </div>
+            </div>
+
+            <!-- NAVEGAÇÃO DE ABAS (REGISTRAR vs CONSULTAR) -->
+            <div class="flex dynamic-card p-1.5 rounded-2xl max-w-md mx-auto">
+                <button id="tab-registrar" onclick="switchDenuncianteTab('registrar')" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-lg"></i> Nova Denúncia
+                </button>
+                <button id="tab-consultar" onclick="switchDenuncianteTab('consultar')" class="flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 opacity-70 hover:opacity-100 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-chart text-lg"></i> Acompanhar Status
+                </button>
+            </div>
+
+            <!-- TAB 1: FORMULÁRIO DE NOVA DENÚNCIA COM STEPPER INTUITIVO -->
+            <div id="denunciante-form-container" class="dynamic-card rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
+                
+                <!-- STEPPER VISUAL PASSO A PASSO -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 relative max-w-2xl mx-auto">
+                    <!-- Step 1 Badge -->
+                    <div id="step-badge-1" class="flex flex-col items-center text-center space-y-1">
+                        <div class="w-10 h-10 rounded-full bg-red-600 text-white font-bold flex items-center justify-center shadow-lg shadow-red-600/40 ring-4 ring-red-900/30 transition-all">
+                            1
+                        </div>
+                        <span class="text-xs font-bold">Tipo & Urgência</span>
+                    </div>
+
+                    <!-- Step 2 Badge -->
+                    <div id="step-badge-2" class="flex flex-col items-center text-center space-y-1">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center transition-all">
+                            2
+                        </div>
+                        <span class="text-xs font-semibold opacity-60">Local & Fato</span>
+                    </div>
+
+                    <!-- Step 3 Badge -->
+                    <div id="step-badge-3" class="flex flex-col items-center text-center space-y-1">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center transition-all">
+                            3
+                        </div>
+                        <span class="text-xs font-semibold opacity-60">Anexos & Envio</span>
+                    </div>
+                </div>
+
+                <form id="form-denuncia" onsubmit="handleDenunciaSubmit(event)" class="space-y-6 pt-4">
+                    
+                    <!-- PASSO 1: DADOS BÁSICOS -->
+                    <div id="step-content-1" class="space-y-6">
+                        <h3 class="text-lg font-bold flex items-center gap-2 border-b border-red-900/40 pb-3">
+                            <span class="w-7 h-7 bg-red-900/50 text-red-400 rounded-lg flex items-center justify-center text-xs font-bold border border-red-700/50">1</span>
+                            Categorização da Denúncia
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Categoria -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                    Tipo do Crime / Infração <span class="text-red-500">*</span>
+                                </label>
+                                <select id="denuncia-categoria" required class="w-full dynamic-input rounded-2xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                                    <option value="" disabled selected>Escolha a categoria que melhor define o ocorrido...</option>
+                                    <option value="Tráfico de Drogas">🚨 Tráfico de Drogas / Entorpecentes</option>
+                                    <option value="Roubo / Furto">🚲 Roubo / Furto / Assalto</option>
+                                    <option value="Violência Doméstica">🛡️ Violência Doméstica / Agressão</option>
+                                    <option value="Vandalismo / Patrimônio">🏚️ Vandalismo / Danos ao Patrimônio</option>
+                                    <option value="Crimes Ambientais">🌲 Crimes Ambientais / Maus Tratos</option>
+                                    <option value="Fraude / Estelionato">💳 Fraude / Golpes / Estelionato</option>
+                                    <option value="Outros">⚠️ Outras Ocorrências</option>
+                                </select>
+                            </div>
+
+                            <!-- Urgência -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                    Nível de Urgência Estimado <span class="text-red-500">*</span>
+                                </label>
+                                <select id="denuncia-urgencia" required class="w-full dynamic-input rounded-2xl px-4 py-3.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                                    <option value="Baixa">🟩 Baixa (Fato antigo / Informação preventiva)</option>
+                                    <option value="Média" selected>🟨 Média (Recente, sem risco imediato)</option>
+                                    <option value="Alta">🟧 Alta (Recorrente / Suspeito frequente no local)</option>
+                                    <option value="Crítica">🟥 Crítica (Em andamento / Risco iminente à vida)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button type="button" onclick="goToStep(2)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
+                                Avançar <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 2: LOCALIZAÇÃO E DETALHES -->
+                    <div id="step-content-2" class="hidden space-y-6">
+                        <h3 class="text-lg font-bold flex items-center gap-2 border-b border-red-900/40 pb-3">
+                            <span class="w-7 h-7 bg-red-900/50 text-red-400 rounded-lg flex items-center justify-center text-xs font-bold border border-red-700/50">2</span>
+                            Localização e Descrição do Fato
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Data e Hora -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                    Data e Hora Aproximada <span class="text-red-500">*</span>
+                                </label>
+                                <input type="datetime-local" id="denuncia-data" required class="w-full dynamic-input rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                            </div>
+
+                            <!-- Endereço -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                    Endereço ou Ponto de Referência Exato <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="denuncia-local" required placeholder="Ex: Rua das Flores, em frente ao nº 120, Bairro Jardim" class="w-full dynamic-input rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Descrição -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                Descrição Detalhada dos Fatos <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="denuncia-descricao" rows="4" required placeholder="Relate com o maior número de detalhes possíveis: placas de veículos envolvidos, características físicas dos suspeitos, rotinas, horários de maior frequência, etc." class="w-full dynamic-input rounded-2xl p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600 transition-all"></textarea>
+                        </div>
+
+                        <div class="flex justify-between pt-4">
+                            <button type="button" onclick="goToStep(1)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3.5 rounded-2xl transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Voltar
+                            </button>
+                            <button type="button" onclick="goToStep(3)" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
+                                Avançar <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PASSO 3: EVIDÊNCIAS E FINALIZAÇÃO -->
+                    <div id="step-content-3" class="hidden space-y-6">
+                        <h3 class="text-lg font-bold flex items-center gap-2 border-b border-red-900/40 pb-3">
+                            <span class="w-7 h-7 bg-red-900/50 text-red-400 rounded-lg flex items-center justify-center text-xs font-bold border border-red-700/50">3</span>
+                            Anexar Evidências (Opcional) & Concluir
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                                Fotos, Imagens ou Documentos Evidenciadores
+                            </label>
+                            <div class="border-2 border-dashed border-red-700/50 bg-red-950/20 hover:bg-red-950/40 rounded-3xl p-8 text-center transition-all cursor-pointer group" onclick="document.getElementById('file-input').click()">
+                                <input type="file" id="file-input" multiple class="hidden" accept="image/*,.pdf" onchange="handleFileSelect(event)">
+                                <div class="w-16 h-16 bg-gradient-to-tr from-red-600 to-amber-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                                </div>
+                                <p class="text-sm font-bold">Clique para selecionar arquivos de evidência</p>
+                                <p class="text-xs opacity-60 mt-1">Metadados de fotos (EXIF e geolocalização) são removidos automaticamente por segurança.</p>
+                            </div>
+                            <div id="file-previews" class="flex flex-wrap gap-3 mt-4"></div>
+                        </div>
+
+                        <div class="bg-emerald-950/40 border border-emerald-500/30 p-4 rounded-2xl text-emerald-300 text-xs flex items-center gap-3">
+                            <i class="fa-solid fa-shield-check text-emerald-400 text-xl"></i>
+                            <span>Sua denúncia será encriptada e enviada de forma 100% anônima aos órgãos competentes.</span>
+                        </div>
+
+                        <div class="flex justify-between pt-4">
+                            <button type="button" onclick="goToStep(2)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3.5 rounded-2xl transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-left"></i> Voltar
+                            </button>
+                            <button type="submit" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:opacity-95 text-slate-950 font-extrabold px-9 py-4 rounded-2xl shadow-glow-emerald transition-all flex items-center gap-3">
+                                <i class="fa-solid fa-paper-plane text-lg"></i> Transmitir Denúncia Anônima
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- MODAL DE PROTOCOLO GERADO (SUCESSO SOBERBO) -->
+            <div id="modal-protocolo-sucesso" class="hidden dynamic-card rounded-3xl shadow-2xl border-2 border-emerald-500/50 p-8 sm:p-10 text-center max-w-2xl mx-auto space-y-6">
+                <div class="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-500 text-slate-950 rounded-3xl flex items-center justify-center mx-auto shadow-glow-emerald animate-bounce">
+                    <i class="fa-solid fa-check text-4xl"></i>
+                </div>
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-500/30">Registrado com Sucesso</span>
+                    <h2 class="text-3xl font-extrabold mt-2">Denúncia Enviada à Inteligência!</h2>
+                    <p class="opacity-70 text-sm mt-2">Salve o código de protocolo e a chave de acompanhamento. Eles são seus únicos meios de acompanhar a investigação.</p>
+                </div>
+
+                <!-- CARDS DE CÓDIGO E CHAVE COM COPIA FÁCIL -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-red-900/50 relative overflow-hidden">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-red-400 block">Número do Protocolo</span>
+                        <span id="display-protocolo" class="text-xl font-mono font-extrabold text-white block mt-1">---</span>
+                        <button onclick="copyToClipboard('display-protocolo')" class="mt-3 w-full bg-red-600/30 hover:bg-red-600 text-red-300 hover:text-white font-bold text-xs py-2 rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-500/30">
+                            <i class="fa-regular fa-copy"></i> Copiar Protocolo
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-950 p-5 rounded-2xl border border-amber-900/50 relative overflow-hidden">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Chave de Segurança</span>
+                        <span id="display-chave" class="text-xl font-mono font-extrabold text-white block mt-1">---</span>
+                        <button onclick="copyToClipboard('display-chave')" class="mt-3 w-full bg-amber-500/30 hover:bg-amber-500 text-amber-300 hover:text-white font-bold text-xs py-2 rounded-xl transition-colors flex items-center justify-center gap-2 border border-amber-500/30">
+                            <i class="fa-regular fa-copy"></i> Copiar Chave
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl text-amber-400 text-xs text-left flex gap-3">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg flex-shrink-0 mt-0.5"></i>
+                    <span><strong>AVISO IMPORTANTE:</strong> Como o sistema é estritamente anônimo, não guardamos seus dados para recuperação. Guarde os dados acima em um local seguro.</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                    <button onclick="prepararNovaDenuncia()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3 rounded-xl transition-all">
+                        Fazer Outra Denúncia
+                    </button>
+                    <button onclick="irParaConsultaDirecta()" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-red-700/40 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> Consultar Status Agora
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 2: CONSULTA DE DENÚNCIA -->
+            <div id="denunciante-consultar-container" class="hidden dynamic-card rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 max-w-2xl mx-auto">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 bg-red-900/30 border border-red-700/40 text-red-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold">Acompanhar Progresso da Investigação</h2>
+                    <p class="text-sm opacity-70">Insira o código de protocolo e a chave recebidos para consultar o histórico.</p>
+                </div>
+
+                <form onsubmit="handleConsultaSubmit(event)" class="space-y-4 pt-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Protocolo</label>
+                            <input type="text" id="consulta-protocolo" required placeholder="Ex: DEN-2026-8942" class="w-full dynamic-input rounded-xl px-4 py-3 text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-red-600 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">Chave de Segurança</label>
+                            <input type="text" id="consulta-chave" required placeholder="Ex: KEY-83921" class="w-full dynamic-input rounded-xl px-4 py-3 text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-red-600 transition-all">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-red-700/40 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-search"></i> Consultar Status Atual
+                    </button>
+                </form>
+
+                <!-- CONTAINER DO RESULTADO DA CONSULTA -->
+                <div id="consulta-resultado" class="hidden pt-4"></div>
+            </div>
+
+        </section>
+
+        <!-- ================= VISÃO DO ADMINISTRADOR POLICIAL ================= -->
+        <section id="view-admin" class="hidden space-y-6">
+            
+            <!-- HEADER DO PAINEL POLICIAL -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 dynamic-card p-6 rounded-3xl">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                        <h2 class="text-xl font-extrabold">Central de Inteligência & Triagem Policial</h2>
+                    </div>
+                    <p class="text-xs opacity-70 mt-1">Gerenciamento de denúncias anônimas em tempo real para a Delegacia Regional.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="renderAdminTable()" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 border border-red-800/50">
+                        <i class="fa-solid fa-rotate-right"></i> Atualizar Dados
+                    </button>
+                </div>
+            </div>
+
+            <!-- DASHBOARD DE ESTATÍSTICAS COLORIDAS (KPIs) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- TOTAL DENÚNCIAS -->
+                <div class="bg-gradient-to-br from-red-950 to-wine-900 border border-red-700/40 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-red-400">Total de Registros</span>
+                        <h3 id="stat-total" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-red-600/20 text-red-400 rounded-2xl flex items-center justify-center border border-red-500/30">
+                        <i class="fa-solid fa-folder-open text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- EM ANÁLISE / PENDENTES -->
+                <div class="bg-gradient-to-br from-amber-950 to-wine-900 border border-amber-500/30 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Em Análise / Novas</span>
+                        <h3 id="stat-pendentes" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center border border-amber-500/30">
+                        <i class="fa-solid fa-hourglass-half text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- EM INVESTIGAÇÃO -->
+                <div class="bg-gradient-to-br from-purple-950 to-wine-900 border border-purple-500/30 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Em Investigação</span>
+                        <h3 id="stat-investigacao" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center border border-purple-500/30">
+                        <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- CONCLUÍDAS -->
+                <div class="bg-gradient-to-br from-emerald-950 to-wine-900 border border-emerald-500/30 rounded-3xl p-5 text-white shadow-lg flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Solucionadas</span>
+                        <h3 id="stat-concluidas" class="text-3xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TABELA DE GERENCIAMENTO DA DELEGACIA -->
+            <div class="dynamic-card rounded-3xl shadow-2xl overflow-hidden">
+                
+                <!-- FERRAMENTAS DE BUSCA E FILTROS -->
+                <div class="p-5 border-b border-red-900/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    
+                    <!-- Busca por palavra-chave -->
+                    <div class="relative flex-1 max-w-md">
+                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="admin-search" oninput="renderAdminTable()" placeholder="Buscar por código, rua, categoria..." class="w-full dynamic-input rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-600">
+                    </div>
+
+                    <!-- Dropdowns de Filtro -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <select id="filter-status" onchange="renderAdminTable()" class="dynamic-input rounded-xl px-3.5 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-red-600">
+                            <option value="todos">Todos os Status</option>
+                            <option value="Em Análise">Em Análise</option>
+                            <option value="Em Investigação">Em Investigação</option>
+                            <option value="Concluída">Concluída</option>
+                            <option value="Arquivada">Arquivada</option>
+                        </select>
+
+                        <select id="filter-urgencia" onchange="renderAdminTable()" class="dynamic-input rounded-xl px-3.5 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-red-600">
+                            <option value="todos">Todas as Urgências</option>
+                            <option value="Crítica">Crítica</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Média">Média</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- LISTAGEM DA TABELA DE OCORRÊNCIAS -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-red-950/40 border-b border-red-900/40 text-[11px] font-extrabold uppercase tracking-wider opacity-70">
+                                <th class="py-4 px-6">Protocolo / Data</th>
+                                <th class="py-4 px-6">Categoria</th>
+                                <th class="py-4 px-6">Localização</th>
+                                <th class="py-4 px-6">Urgência</th>
+                                <th class="py-4 px-6">Status Atual</th>
+                                <th class="py-4 px-6 text-right">Ação Policial</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-red-900/20 text-sm">
+                            <!-- Inserção via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL DE DETALHES E TRATATIVA POLICIAL -->
+    <div id="modal-admin-detalhes" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="dynamic-card rounded-3xl shadow-2xl border border-red-700/50 max-w-3xl w-full overflow-hidden my-8 max-h-[90vh] flex flex-col">
+            
+            <!-- HEADER DO MODAL -->
+            <div class="px-6 py-5 bg-gradient-to-r from-wine-950 via-red-950 to-wine-950 text-white flex items-center justify-between border-b border-red-900/40">
+                <div class="flex items-center space-x-3">
+                    <span id="modal-detalhe-proto" class="bg-red-700 text-white px-3 py-1 rounded-xl text-xs font-mono font-extrabold">DEN-XXXX</span>
+                    <h3 class="text-base font-extrabold">Ficha do Caso & Despacho Oficial</h3>
+                </div>
+                <button onclick="fecharModalAdmin()" class="text-slate-400 hover:text-white p-2 rounded-xl transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- CONTEÚDO DO MODAL -->
+            <div class="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                
+                <!-- CARDS DE INFORMAÇÕES DE TOPO -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 dynamic-card p-4 rounded-2xl">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Categoria</span>
+                        <p id="modal-detalhe-cat" class="text-sm font-bold mt-0.5">---</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Data da Ocorrência</span>
+                        <p id="modal-detalhe-data" class="text-sm font-bold mt-0.5">---</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Gravidade</span>
+                        <div id="modal-detalhe-urgencia" class="mt-0.5">---</div>
+                    </div>
+                </div>
+
+                <!-- ENDEREÇO -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-70">Local Registrado</span>
+                    <p id="modal-detalhe-local" class="text-sm font-semibold mt-1 dynamic-card p-3.5 rounded-xl flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-red-500 text-base"></i> <span>---</span>
+                    </p>
+                </div>
+
+                <!-- DESCRITIVO COMPLETO -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-70">Relato do Denunciante Anônimo</span>
+                    <div id="modal-detalhe-desc" class="text-sm mt-1 dynamic-card p-4 rounded-2xl leading-relaxed whitespace-pre-line font-medium">
+                        ---
+                    </div>
+                </div>
+
+                <!-- ANEXOS -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-70">Mídias & Evidências Salvas</span>
+                    <div id="modal-detalhe-evidencias" class="flex flex-wrap gap-3 mt-2"></div>
+                </div>
+
+                <hr class="border-red-900/30">
+
+                <!-- FORMULÁRIO DE DESPACHO E ATUALIZAÇÃO -->
+                <div class="bg-gradient-to-br from-red-950/40 to-wine-900/40 p-6 rounded-2xl border border-red-900/40 space-y-4">
+                    <h4 class="text-sm font-extrabold flex items-center gap-2 text-red-400">
+                        <i class="fa-solid fa-pen-nib text-red-500"></i> Atualizar Tratativa Policial
+                    </h4>
+
+                    <div>
+                        <label class="block text-xs font-bold mb-1 opacity-80">Alterar Status da Ocorrência</label>
+                        <select id="modal-novo-status" class="w-full dynamic-input rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-red-600">
+                            <option value="Em Análise">Em Análise</option>
+                            <option value="Em Investigação">Em Investigação</option>
+                            <option value="Concluída">Concluída</option>
+                            <option value="Arquivada">Arquivada</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold mb-1 opacity-80">Parecer / Despacho Oficial (Visível ao Denunciante)</label>
+                        <textarea id="modal-nova-obs" rows="3" placeholder="Insira o andamento, ações tomadas pela equipe de inteligência ou o desfecho da investigação..." class="w-full dynamic-input rounded-xl p-3.5 text-sm focus:ring-2 focus:ring-red-600 font-medium"></textarea>
+                    </div>
+
+                    <button onclick="salvarAtualizacaoAdmin()" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white text-xs font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-red-700/40 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar & Registrar Parecer
+                    </button>
+                </div>
+
+                <!-- HISTÓRICO DE ALTERAÇÕES -->
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 block">Histórico do Protocolo</span>
+                    <div id="modal-historico-list" class="space-y-2 text-xs"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA E SCRIPT PRINCIPAL DO SISTEMA -->
+    <script>
+        let denuncias = [];
+        let arquivosUploadTemp = [];
+        let denunciaAtualModalId = null;
+
+        // MOCK DATA INICIAL COLORIDO E DIVERSIRCADO
+        const mockDenuncias = [
+            {
+                id: "DEN-2026-1049",
+                chave: "KEY-92810",
+                categoria: "Tráfico de Drogas",
+                urgencia: "Alta",
+                dataHora: "2026-09-12T22:30",
+                local: "Rua das Palmeiras, próximo ao nº 140, Bairro Central",
+                descricao: "Movimentação constante de veículos suspeitos e entrega de pequenos pacotes durante as madrugadas. Maior pico das 23h às 03h.",
+                evidencias: [
+                    "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80"
+                ],
+                status: "Em Investigação",
+                historico: [
+                    { data: "12/09/2026 22:35", status: "Em Análise", obs: "Denúncia registrada com sucesso e enviada à inteligência." },
+                    { data: "13/09/2026 09:15", status: "Em Investigação", obs: "Equipe velada designada para verificação no local." }
+                ]
+            },
+            {
+                id: "DEN-2026-3820",
+                chave: "KEY-10492",
+                categoria: "Roubo / Furto",
+                urgencia: "Média",
+                dataHora: "2026-09-10T14:00",
+                local: "Estacionamento do Supermercado Silva - Av. Brasil",
+                descricao: "Indivíduo vestindo casaco escuro forçando maçanetas de veículos estacionados.",
+                evidencias: [],
+                status: "Concluída",
+                historico: [
+                    { data: "10/09/2026 14:20", status: "Em Análise", obs: "Registro de ocorrência processado." },
+                    { data: "11/09/2026 11:00", status: "Concluída", obs: "Patrulha ostensiva abordou e identificou o suspeito no perímetro." }
+                ]
+            },
+            {
+                id: "DEN-2026-5591",
+                chave: "KEY-44921",
+                categoria: "Violência Doméstica",
+                urgencia: "Crítica",
+                dataHora: "2026-09-14T08:00",
+                local: "Rua B, Bloco C, Apto 202 - Condomínio Esperança",
+                descricao: "Gritos constantes de pedido de socorro e barulho de objetos sendo quebrados.",
+                evidencias: [],
+                status: "Em Análise",
+                historico: [
+                    { data: "14/09/2026 08:05", status: "Em Análise", obs: "Denúncia de urgência máxima recebida. Viatura em deslocamento." }
+                ]
+            }
+        ];
+
+        window.onload = function() {
+            const savedData = localStorage.getItem('segpub_denuncias_v2');
+            if (savedData) {
+                try {
+                    denuncias = JSON.parse(savedData);
+                } catch(e) {
+                    denuncias = mockDenuncias;
+                }
+            } else {
+                denuncias = mockDenuncias;
+                salvarStorage();
+            }
+
+            // Aplicar Tema Salvo
+            const savedTheme = localStorage.getItem('segpub_theme');
+            if(savedTheme === 'light') {
+                document.documentElement.classList.remove('dark-red-theme');
+                document.documentElement.classList.add('light-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-lg text-amber-500';
+            }
+
+            atualizarEstatisticasAdmin();
+            renderAdminTable();
+        };
+
+        function toggleTheme() {
+            const htmlElem = document.documentElement;
+            const iconElem = document.getElementById('theme-icon');
+
+            if (htmlElem.classList.contains('light-mode')) {
+                htmlElem.classList.remove('light-mode');
+                htmlElem.classList.add('dark-red-theme');
+                iconElem.className = 'fa-solid fa-moon text-lg text-amber-400';
+                localStorage.setItem('segpub_theme', 'dark-red');
+            } else {
+                htmlElem.classList.remove('dark-red-theme');
+                htmlElem.classList.add('light-mode');
+                iconElem.className = 'fa-solid fa-sun text-lg text-amber-500';
+                localStorage.setItem('segpub_theme', 'light');
+            }
+        }
+
+        function salvarStorage() {
+            localStorage.setItem('segpub_denuncias_v2', JSON.stringify(denuncias));
+        }
+
+        function switchView(view) {
+            const btnDenunciante = document.getElementById('nav-denunciante');
+            const btnAdmin = document.getElementById('nav-admin');
+            const viewDenunciante = document.getElementById('view-denunciante');
+            const viewAdmin = document.getElementById('view-admin');
+
+            if (view === 'denunciante') {
+                viewDenunciante.classList.remove('hidden');
+                viewAdmin.classList.add('hidden');
+                
+                btnDenunciante.className = "px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 flex items-center space-x-2 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-lg shadow-red-700/40";
+                btnAdmin.className = "px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-red-400 flex items-center space-x-2";
+            } else {
+                viewDenunciante.classList.add('hidden');
+                viewAdmin.classList.remove('hidden');
+
+                btnAdmin.className = "px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-lg shadow-red-700/40 flex items-center space-x-2";
+                btnDenunciante.className = "px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-red-400 flex items-center space-x-2";
+
+                renderAdminTable();
+                atualizarEstatisticasAdmin();
+            }
+        }
+
+        function switchDenuncianteTab(tab) {
+            const btnReg = document.getElementById('tab-registrar');
+            const btnCon = document.getElementById('tab-consultar');
+            const containerForm = document.getElementById('denunciante-form-container');
+            const containerConsultar = document.getElementById('denunciante-consultar-container');
+            const modalSucesso = document.getElementById('modal-protocolo-sucesso');
+
+            modalSucesso.classList.add('hidden');
+
+            if (tab === 'registrar') {
+                containerForm.classList.remove('hidden');
+                containerConsultar.classList.add('hidden');
+
+                btnReg.className = "flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-md flex items-center justify-center gap-2";
+                btnCon.className = "flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 opacity-70 hover:opacity-100 flex items-center justify-center gap-2";
+            } else {
+                containerForm.classList.add('hidden');
+                containerConsultar.classList.remove('hidden');
+
+                btnCon.className = "flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 bg-gradient-to-r from-red-700 to-rose-600 text-white shadow-md flex items-center justify-center gap-2";
+                btnReg.className = "flex-1 py-3 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 opacity-70 hover:opacity-100 flex items-center justify-center gap-2";
+            }
+        }
+
+        function goToStep(stepNumber) {
+            document.getElementById('step-content-1').classList.add('hidden');
+            document.getElementById('step-content-2').classList.add('hidden');
+            document.getElementById('step-content-3').classList.add('hidden');
+
+            document.getElementById(`step-content-${stepNumber}`).classList.remove('hidden');
+
+            for(let i = 1; i <= 3; i++) {
+                const b = document.getElementById(`step-badge-${i}`).querySelector('div');
+                const t = document.getElementById(`step-badge-${i}`).querySelector('span');
+
+                if (i === stepNumber) {
+                    b.className = "w-10 h-10 rounded-full bg-red-600 text-white font-bold flex items-center justify-center shadow-lg shadow-red-600/40 ring-4 ring-red-900/40 transition-all";
+                    t.className = "text-xs font-bold text-red-500";
+                } else if (i < stepNumber) {
+                    b.className = "w-10 h-10 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center shadow-md transition-all";
+                    b.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    t.className = "text-xs font-bold text-emerald-500";
+                } else {
+                    b.className = "w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center transition-all";
+                    b.innerHTML = i;
+                    t.className = "text-xs font-semibold opacity-60";
+                }
+            }
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('file-previews');
+            previewContainer.innerHTML = '';
+            arquivosUploadTemp = [];
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    arquivosUploadTemp.push(e.target.result);
+
+                    const div = document.createElement('div');
+                    div.className = "relative w-20 h-20 rounded-2xl overflow-hidden border border-red-900/40 dynamic-card shadow-sm";
+                    
+                    if(file.type.startsWith('image/')) {
+                        div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                    } else {
+                        div.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center font-bold text-xs"><i class="fa-solid fa-file-pdf text-xl text-red-500"></i><span class="text-[9px] mt-1">PDF</span></div>`;
+                    }
+
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function handleDenunciaSubmit(e) {
+            e.preventDefault();
+
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            const ano = new Date().getFullYear();
+            const protocolo = `DEN-${ano}-${randomNum}`;
+            const chave = `KEY-${Math.floor(10000 + Math.random() * 90000)}`;
+
+            const novaDenuncia = {
+                id: protocolo,
+                chave: chave,
+                categoria: document.getElementById('denuncia-categoria').value,
+                urgencia: document.getElementById('denuncia-urgencia').value,
+                dataHora: document.getElementById('denuncia-data').value,
+                local: document.getElementById('denuncia-local').value,
+                descricao: document.getElementById('denuncia-descricao').value,
+                evidencias: [...arquivosUploadTemp],
+                status: "Em Análise",
+                historico: [
+                    {
+                        data: new Date().toLocaleString('pt-BR'),
+                        status: "Em Análise",
+                        obs: "Denúncia anônima cadastrada no sistema de triagem."
+                    }
+                ]
+            };
+
+            denuncias.unshift(novaDenuncia);
+            salvarStorage();
+
+            document.getElementById('denunciante-form-container').classList.add('hidden');
+            document.getElementById('modal-protocolo-sucesso').classList.remove('hidden');
+
+            document.getElementById('display-protocolo').innerText = protocolo;
+            document.getElementById('display-chave').innerText = chave;
+
+            document.getElementById('form-denuncia').reset();
+            document.getElementById('file-previews').innerHTML = '';
+            arquivosUploadTemp = [];
+            goToStep(1);
+        }
+
+        function prepararNovaDenuncia() {
+            switchDenuncianteTab('registrar');
+        }
+
+        function irParaConsultaDirecta() {
+            const proto = document.getElementById('display-protocolo').innerText;
+            const chave = document.getElementById('display-chave').innerText;
+
+            switchDenuncianteTab('consultar');
+            document.getElementById('consulta-protocolo').value = proto;
+            document.getElementById('consulta-chave').value = chave;
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const elem = document.getElementById(elementId);
+            const originalText = elem.innerText;
+            elem.innerText = "COPIADO!";
+            setTimeout(() => {
+                elem.innerText = originalText;
+            }, 1200);
+        }
+
+        function handleConsultaSubmit(e) {
+            e.preventDefault();
+            const proto = document.getElementById('consulta-protocolo').value.trim().toUpperCase();
+            const chave = document.getElementById('consulta-chave').value.trim().toUpperCase();
+
+            const encontrada = denuncias.find(d => d.id === proto && d.chave === chave);
+            const resContainer = document.getElementById('consulta-resultado');
+
+            if (!encontrada) {
+                resContainer.classList.remove('hidden');
+                resContainer.innerHTML = `
+                    <div class="bg-red-950/60 border border-red-500/40 text-red-300 p-5 rounded-2xl text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-xl text-red-500"></i>
+                        <span>Protocolo ou Chave incorretos. Verifique os dados fornecidos e tente novamente.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            resContainer.classList.remove('hidden');
+            resContainer.innerHTML = `
+                <div class="dynamic-card rounded-3xl p-6 sm:p-8 space-y-6">
+                    <div class="flex flex-wrap justify-between items-start gap-4 pb-4 border-b border-red-900/30">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Identificador</span>
+                            <h3 class="text-xl font-extrabold font-mono text-red-400">${encontrada.id}</h3>
+                            <p class="text-xs font-semibold mt-0.5">${encontrada.categoria} • ${getUrgenciaBadgeHTML(encontrada.urgencia)}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-60">Status Atual</span>
+                            <div class="mt-1">${getStatusBadgeHTML(encontrada.status)}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider mb-4 flex items-center gap-2 text-red-400">
+                            <i class="fa-solid fa-timeline text-red-500 text-sm"></i> Linha do Tempo & Despachos Policiais
+                        </h4>
+                        <div class="space-y-4 relative before:absolute before:inset-0 before:left-3.5 before:w-0.5 before:bg-red-900/40 pl-8">
+                            ${encontrada.historico.map(h => `
+                                <div class="relative">
+                                    <div class="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-red-600 to-amber-500 ring-4 ring-red-950"></div>
+                                    <div class="text-[10px] opacity-60 font-bold uppercase tracking-wider mb-0.5">${h.data}</div>
+                                    <div class="text-xs font-extrabold mb-1">${h.status}</div>
+                                    <p class="text-xs dynamic-card p-3.5 rounded-2xl shadow-sm leading-relaxed">${h.obs}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function atualizarEstatisticasAdmin() {
+            document.getElementById('stat-total').innerText = denuncias.length;
+            document.getElementById('stat-pendentes').innerText = denuncias.filter(d => d.status === 'Em Análise').length;
+            document.getElementById('stat-investigacao').innerText = denuncias.filter(d => d.status === 'Em Investigação').length;
+            document.getElementById('stat-concluidas').innerText = denuncias.filter(d => d.status === 'Concluída').length;
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            const search = document.getElementById('admin-search').value.toLowerCase();
+            const filterStatus = document.getElementById('filter-status').value;
+            const filterUrgencia = document.getElementById('filter-urgencia').value;
+
+            let filtradas = denuncias.filter(d => {
+                const matchSearch = d.id.toLowerCase().includes(search) || 
+                                    d.local.toLowerCase().includes(search) || 
+                                    d.categoria.toLowerCase().includes(search);
+                const matchStatus = filterStatus === 'todos' || d.status === filterStatus;
+                const matchUrg = filterUrgencia === 'todos' || d.urgencia === filterUrgencia;
+
+                return matchSearch && matchStatus && matchUrg;
+            });
+
+            if (filtradas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-12 opacity-60 text-sm font-semibold">
+                            <i class="fa-solid fa-folder-open text-4xl mb-3 block opacity-40"></i>
+                            Nenhuma ocorrência encontrada com os filtros selecionados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtradas.map(d => `
+                <tr class="hover:bg-red-950/20 transition-colors">
+                    <td class="py-4 px-6 font-mono font-extrabold text-red-500">
+                        ${d.id}
+                        <span class="block text-[11px] font-sans font-medium opacity-60 mt-0.5">${formatarData(d.dataHora)}</span>
+                    </td>
+                    <td class="py-4 px-6 font-bold">${d.categoria}</td>
+                    <td class="py-4 px-6 text-xs opacity-80 font-medium max-w-xs truncate" title="${d.local}">${d.local}</td>
+                    <td class="py-4 px-6">${getUrgenciaBadgeHTML(d.urgencia)}</td>
+                    <td class="py-4 px-6">${getStatusBadgeHTML(d.status)}</td>
+                    <td class="py-4 px-6 text-right">
+                        <button onclick="abrirModalAdmin('${d.id}')" class="bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-800 hover:to-rose-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 justify-end ml-auto">
+                            <i class="fa-solid fa-eye"></i> Detalhes
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function abrirModalAdmin(id) {
+            const denuncia = denuncias.find(d => d.id === id);
+            if(!denuncia) return;
+
+            denunciaAtualModalId = id;
+
+            document.getElementById('modal-detalhe-proto').innerText = denuncia.id;
+            document.getElementById('modal-detalhe-cat').innerText = denuncia.categoria;
+            document.getElementById('modal-detalhe-data').innerText = formatarData(denuncia.dataHora);
+            document.getElementById('modal-detalhe-urgencia').innerHTML = getUrgenciaBadgeHTML(denuncia.urgencia);
+            document.getElementById('modal-detalhe-local').querySelector('span').innerText = denuncia.local;
+            document.getElementById('modal-detalhe-desc').innerText = denuncia.descricao;
+
+            const containerEvidencias = document.getElementById('modal-detalhe-evidencias');
+            if (denuncia.evidencias && denuncia.evidencias.length > 0) {
+                containerEvidencias.innerHTML = denuncia.evidencias.map((ev) => `
+                    <a href="${ev}" target="_blank" class="block w-24 h-24 rounded-2xl overflow-hidden border border-red-900/40 relative group">
+                        <img src="${ev}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/100x100/3d1016/fca5a5?text=Anexo'">
+                        <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                            Abrir
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                containerEvidencias.innerHTML = `<span class="text-xs opacity-50 italic">Sem evidências anexadas.</span>`;
+            }
+
+            document.getElementById('modal-novo-status').value = denuncia.status;
+            document.getElementById('modal-nova-obs').value = '';
+
+            renderModalHistorico(denuncia);
+            document.getElementById('modal-admin-detalhes').classList.remove('hidden');
+        }
+
+        function fecharModalAdmin() {
+            document.getElementById('modal-admin-detalhes').classList.add('hidden');
+            denunciaAtualModalId = null;
+        }
+
+        function salvarAtualizacaoAdmin() {
+            if(!denunciaAtualModalId) return;
+
+            const denuncia = denuncias.find(d => d.id === denunciaAtualModalId);
+            if(!denuncia) return;
+
+            const novoStatus = document.getElementById('modal-novo-status').value;
+            const novaObs = document.getElementById('modal-nova-obs').value.trim() || `Status atualizado para ${novoStatus}`;
+
+            denuncia.status = novoStatus;
+            denuncia.historico.unshift({
+                data: new Date().toLocaleString('pt-BR'),
+                status: novoStatus,
+                obs: novaObs
+            });
+
+            salvarStorage();
+            atualizarEstatisticasAdmin();
+            renderAdminTable();
+            renderModalHistorico(denuncia);
+
+            document.getElementById('modal-nova-obs').value = '';
+        }
+
+        function renderModalHistorico(denuncia) {
+            const list = document.getElementById('modal-historico-list');
+            list.innerHTML = denuncia.historico.map(h => `
+                <div class="dynamic-card p-3 rounded-xl">
+                    <div class="flex justify-between font-bold">
+                        <span>${h.status}</span>
+                        <span class="text-[10px] opacity-60">${h.data}</span>
+                    </div>
+                    <p class="opacity-80 mt-1 font-medium">${h.obs}</p>
+                </div>
+            `).join('');
+        }
+
+        function getStatusBadgeHTML(status) {
+            switch(status) {
+                case 'Em Análise':
+                    return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center gap-1.5"><i class="fa-solid fa-hourglass-half text-[10px]"></i> Em Análise</span>`;
+                case 'Em Investigação':
+                    return `<span class="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass text-[10px]"></i> Em Investigação</span>`;
+                case 'Concluída':
+                    return `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> Concluída</span>`;
+                case 'Arquivada':
+                    return `<span class="bg-slate-700/50 text-slate-300 border border-slate-600/50 text-xs font-extrabold px-3 py-1 rounded-full inline-flex items-center gap-1.5"><i class="fa-solid fa-box-archive text-[10px]"></i> Arquivada</span>`;
+                default:
+                    return `<span class="bg-slate-700 text-slate-200 text-xs font-bold px-3 py-1 rounded-full">${status}</span>`;
+            }
+        }
+
+        function getUrgenciaBadgeHTML(urgencia) {
+            switch(urgencia) {
+                case 'Crítica':
+                    return `<span class="gradient-badge-critico text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Crítica</span>`;
+                case 'Alta':
+                    return `<span class="gradient-badge-alta text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Alta</span>`;
+                case 'Média':
+                    return `<span class="gradient-badge-media text-slate-950 text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Média</span>`;
+                case 'Baixa':
+                    return `<span class="gradient-badge-baixa text-white text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm">Baixa</span>`;
+                default:
+                    return urgencia;
+            }
+        }
+
+        function formatarData(dataIso) {
+            if(!dataIso) return 'N/A';
+            try {
+                const d = new Date(dataIso);
+                return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-2-digit', minute:'2-2-digit'});
+            } catch(e) {
+                return dataIso;
+            }
+        }
+    </script>
+</body>
+</html>
