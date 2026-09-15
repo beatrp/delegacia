@@ -689,6 +689,25 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4"></div>
 
     <!-- LÓGICA E SCRIPT PRINCIPAL DO SISTEMA -->
+    <footer class="border-t transition-colors duration-300" style="border-color: var(--border-card); background-color: var(--header-bg);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-red-900/30 border border-red-700/40 flex items-center justify-center text-red-500">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </span>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold" style="color: var(--text-primary);">Canal Seguro</span>
+                    <span class="text-red-500">•</span>
+                    <span style="color: var(--text-secondary);">Protótipo acadêmico</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-center sm:text-right" style="color: var(--text-secondary);">
+                <i class="fa-solid fa-circle-info text-red-500"></i>
+                <span>Ambiente demonstrativo. Os registros permanecem somente no navegador.</span>
+            </div>
+        </div>
+    </footer>
+
     <script>
         // CHAVE PRINCIPAL DO LOCALSTORAGE SOLICITADA
         const DB_KEY = 'denuncia_anonima_db';
