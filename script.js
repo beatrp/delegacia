@@ -35,7 +35,7 @@ const initialMockData = [
         dataRegistro: '2026-09-11 11:30',
         historico: [
             { data: '2026-09-11 11:30', status: 'Pendente', nota: 'Denúncia registrada.' },
-            { data: '2026-09-12 09:00', status: 'Concluída', nota: 'Patrulha do BAPM resgatou o animal.' }
+            { data: '2026-09-12 09:00', status: 'Concluída', nota: 'Patrulha resgatou o animal.' }
         ]
     }
 ];
@@ -83,7 +83,6 @@ function handleCategoriaChange(selectElement) {
     }
 }
 
-// AUTENTICAÇÃO POLICIAL
 function handleAdminLogin(e) {
     e.preventDefault();
     const u = document.getElementById('adminUser').value.trim();
@@ -121,7 +120,7 @@ function renderFileList() {
     fileList.innerHTML = '';
     selectedFiles.forEach((file, index) => {
         const badge = document.createElement('div');
-        badge.className = 'bg-brand-900/60 border border-brand-700/60 rounded-xl px-3 py-1.5 text-xs text-slate-200 flex items-center space-x-2';
+        badge.className = 'bg-brand-900/80 border border-brand-700/80 rounded-xl px-3 py-1.5 text-xs text-slate-100 flex items-center space-x-2';
         badge.innerHTML = `
             <i data-lucide="paperclip" class="w-3.5 h-3.5 text-brand-400"></i>
             <span class="max-w-[150px] truncate">${file.name}</span>
@@ -227,7 +226,7 @@ function handleTrackSubmit(e) {
         if (found.status === 'Concluída') badgeClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
 
         let historyHTML = found.historico.map(h => `
-            <div class="border-l-2 border-brand-700 pl-4 py-1 space-y-1">
+            <div class="border-l-2 border-brand-600 pl-4 py-1 space-y-1">
                 <div class="flex items-center justify-between text-xs text-slate-400">
                     <span>${h.data}</span>
                     <span class="font-bold text-brand-300">${h.status}</span>
@@ -238,7 +237,7 @@ function handleTrackSubmit(e) {
 
         resultDiv.innerHTML = `
             <div class="space-y-4">
-                <div class="flex items-center justify-between border-b border-brand-900/50 pb-3">
+                <div class="flex items-center justify-between border-b border-brand-900/80 pb-3">
                     <div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase">Protocolo</span>
                         <h4 class="text-lg font-bold text-white">${found.id}</h4>
@@ -293,7 +292,7 @@ function renderAdminTable() {
     if (filtered.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-8 text-slate-500 text-xs">Nenhuma denúncia encontrada.</td>
+                <td colspan="6" class="text-center py-8 text-slate-400 text-xs">Nenhuma denúncia encontrada.</td>
             </tr>
         `;
         return;
@@ -310,11 +309,11 @@ function renderAdminTable() {
         if (item.urgencia === 'Alta') urgenciaBadge = 'bg-brand-950 text-brand-300 border border-brand-800/80';
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-brand-950/30 transition-colors';
+        tr.className = 'hover:bg-brand-950/40 transition-colors border-b border-brand-900/30';
         tr.innerHTML = `
             <td class="p-4">
                 <span class="font-mono font-bold text-white block">${item.id}</span>
-                <span class="text-[11px] text-slate-500">${item.dataRegistro}</span>
+                <span class="text-[11px] text-slate-400">${item.dataRegistro}</span>
             </td>
             <td class="p-4 font-semibold text-slate-200">${item.categoria}</td>
             <td class="p-4 text-xs text-slate-300 max-w-[200px] truncate">${item.local}</td>
@@ -353,34 +352,34 @@ function openAdminModal(id) {
 
     const content = document.getElementById('admModalContent');
     content.innerHTML = `
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-black/40 p-4 rounded-2xl border border-brand-900/40">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-black/60 p-4 rounded-2xl border border-brand-900/60">
             <div>
-                <span class="text-slate-500 text-[10px] uppercase font-bold block">Categoria</span>
+                <span class="text-slate-400 text-[10px] uppercase font-bold block">Categoria</span>
                 <span class="font-bold text-slate-200">${item.categoria}</span>
             </div>
             <div>
-                <span class="text-slate-500 text-[10px] uppercase font-bold block">Urgência</span>
+                <span class="text-slate-400 text-[10px] uppercase font-bold block">Urgência</span>
                 <span class="font-bold text-amber-400">${item.urgencia}</span>
             </div>
             <div>
-                <span class="text-slate-500 text-[10px] uppercase font-bold block">Data/Hora Ocorrido</span>
+                <span class="text-slate-400 text-[10px] uppercase font-bold block">Data/Hora Ocorrido</span>
                 <span class="font-bold text-slate-200">${item.dataOcorrido} às ${item.horaOcorrido}</span>
             </div>
         </div>
 
         <div>
             <span class="text-slate-400 text-xs font-bold uppercase block mb-1">Localização</span>
-            <p class="text-slate-200 bg-black/30 p-3 rounded-xl border border-brand-900/30">${item.local}</p>
+            <p class="text-slate-200 bg-black/50 p-3 rounded-xl border border-brand-900/40">${item.local}</p>
         </div>
 
         <div>
             <span class="text-slate-400 text-xs font-bold uppercase block mb-1">Descrição dos Fatos</span>
-            <p class="text-slate-200 bg-black/30 p-4 rounded-xl border border-brand-900/30 text-xs leading-relaxed">${item.descricao}</p>
+            <p class="text-slate-200 bg-black/50 p-4 rounded-xl border border-brand-900/40 text-xs leading-relaxed">${item.descricao}</p>
         </div>
 
         <div>
             <span class="text-slate-400 text-xs font-bold uppercase block mb-1">Evidências Anexadas</span>
-            <p class="text-slate-300 text-xs flex items-center space-x-2 bg-black/30 p-3 rounded-xl border border-brand-900/30">
+            <p class="text-slate-300 text-xs flex items-center space-x-2 bg-black/50 p-3 rounded-xl border border-brand-900/40">
                 <i data-lucide="paperclip" class="w-4 h-4 text-brand-400"></i>
                 <span>${item.evidenciasCount} arquivo(s) em anexo no servidor seguro.</span>
             </p>
@@ -457,28 +456,13 @@ function switchUserSubTab(sub) {
     if (sub === 'new') {
         subNew.classList.remove('hidden');
         subTrack.classList.add('hidden');
-        btnSubNew.className = 'py-3 px-6 text-sm font-bold border-b-2 border-brand-500 text-brand-500 flex items-center space-x-2';
+        btnSubNew.className = 'py-3 px-6 text-sm font-bold border-b-2 border-brand-500 text-brand-400 flex items-center space-x-2';
         btnSubTrack.className = 'py-3 px-6 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2';
     } else {
         subNew.classList.add('hidden');
         subTrack.classList.remove('hidden');
-        btnSubTrack.className = 'py-3 px-6 text-sm font-bold border-b-2 border-brand-500 text-brand-500 flex items-center space-x-2';
+        btnSubTrack.className = 'py-3 px-6 text-sm font-bold border-b-2 border-brand-500 text-brand-400 flex items-center space-x-2';
         btnSubNew.className = 'py-3 px-6 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2';
-    }
-}
-
-function toggleTheme() {
-    const body = document.getElementById('bodyApp');
-    const sun = document.getElementById('sunIcon');
-    const moon = document.getElementById('moonIcon');
-
-    body.classList.toggle('dark');
-    if (body.classList.contains('dark')) {
-        sun.classList.add('hidden');
-        moon.classList.remove('hidden');
-    } else {
-        sun.classList.remove('hidden');
-        moon.classList.add('hidden');
     }
 }
 
